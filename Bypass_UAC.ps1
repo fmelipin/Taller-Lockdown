@@ -1,5 +1,6 @@
-# UAC_Bypass.ps1
+﻿# UAC_Bypass.ps1
 # Versión para LockDown 2025 
+
 chcp 65001 > $null
 [Console]::InputEncoding  = [System.Text.Encoding]::UTF8
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
