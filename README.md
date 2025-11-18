@@ -10,6 +10,10 @@ Herramienta  de bypass UAC para Windows con capacidades de evasión EDR/AV y eje
 - **PowerShell Reverse Shell**: Reverse shell integrada y ofuscada
 - **Limpieza Automática**: Eliminación de artefactos post-ejecución
 - **Compatibilidad Multi-Windows**: Probado en Microsoft Windows 11 Pro 10.0.26100 N/D Compilación 26100
+  
+<div align="center">
+    <img src="img/2025-11-18_14-03.png" alt="Captura de pantalla de la aplicación" width="600" style="border: 10px solid black;" />
+</div>
 
 ## Instalación:
 
