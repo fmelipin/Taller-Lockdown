@@ -1,5 +1,7 @@
 # UAC_Bypass.ps1
 # Versión para LockDown 2025 
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
 
 Function SetInfFile($CommandToExecute) {
     $localAppData = [Environment]::GetFolderPath("LocalApplicationData")
