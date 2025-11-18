@@ -225,7 +225,6 @@ Function Execute-CommandAsSystem {
     $scriptFile = $null
     
     try {
-        # Script más sigiloso con nombre legítimo
         $tempScript = @"
 @echo off
 chcp 65001 >nul
@@ -235,11 +234,9 @@ exit /b 0
         
         $scriptFile = Join-Path $tempDir ("wsus_scan_" + (Get-Random -Minimum 1000 -Maximum 9999) + ".bat")
         Set-Content -Path $scriptFile -Value $tempScript -Encoding ASCII
-        
-        # Calcular tiempo futuro (2 minutos en el futuro)
+
         $futureTime = (Get-Date).AddMinutes(2).ToString("HH:mm")
         
-        # Comando completamente silencioso
         $createTask = "schtasks /create /tn `"$taskName`" /tr `"$scriptFile`" /sc once /st $futureTime /ru SYSTEM /f >nul 2>&1"
         $runTask = "schtasks /run /tn `"$taskName`" >nul 2>&1"
         $waitAndClean = "timeout /t 5 >nul && schtasks /delete /tn `"$taskName`" /f >nul 2>&1"
@@ -252,7 +249,6 @@ exit /b 0
         if ($result) {
             Write-Host "[+] Tarea ejecutada, recuperando resultados..." -ForegroundColor Green
             
-            # Esperar y verificar output
             Start-Sleep -Seconds 4
             
             if (Test-Path $outputFile) {
@@ -286,7 +282,6 @@ exit /b 0
         return $false
     }
     finally {
-        # Limpieza silenciosa
         Start-Sleep -Seconds 1
         
         $filesToDelete = @($outputFile, $scriptFile)
@@ -295,16 +290,13 @@ exit /b 0
                 try {
                     Remove-Item $file -Force -ErrorAction SilentlyContinue
                 } catch {
-                    # Silencioso en los errores de limpieza
                 }
             }
         }
         
-        # Limpieza silenciosa de tareas residuales
         try {
             $null = schtasks /delete /tn $taskName /f 2>$null
         } catch {
-            # Silencioso
         }
     }
 }
