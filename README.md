@@ -51,6 +51,11 @@ Puerto: 4444
 Ejecutar comando como SYSTEM: net user hacker Password123! /add
 ```
 
+<div align="center">
+    <img src="img/2025-11-18_14-03.png" alt="Captura de pantalla de la aplicación" width="600" style="border: 2px solid black;" />
+</div>
+
+
 ## Advertencias:
 
 1. Este proyecto tiene fines exclusivamente educativos y de investigación en seguridad ofensiva.  
