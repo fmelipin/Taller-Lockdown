@@ -9,7 +9,7 @@ Herramienta  de bypass UAC para Windows con capacidades de evasión EDR/AV y eje
 - **Ejecución como SYSTEM**: Capacidad de ejecutar comandos con privilegios SYSTEM
 - **PowerShell Reverse Shell**: Reverse shell integrada y ofuscada
 - **Limpieza Automática**: Eliminación de artefactos post-ejecución
-- **Compatibilidad Multi-Windows**: Probado en Windows 11 10.0.26100 N/D Compilación 26100
+- **Compatibilidad Multi-Windows**: Probado en Microsoft Windows 11 Pro 10.0.26100 N/D Compilación 26100
 
 ## Instalación:
 
