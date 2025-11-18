@@ -26,8 +26,6 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/tu-usuario/UAC-Bypass/
 # Ejecutar directamente
 .\Bypass_UAC.ps1
 
-<img width="782" height="236" alt="image" src="https://github.com/user-attachments/assets/8875456e-35fa-4486-912d-af704c8c6524" />
-
 Opciones del Menú:
 PowerShell Elevado        - Abre PowerShell con privilegios de administrador
 Ejecutar Comando          - Ejecuta comandos arbitrarios con elevación
