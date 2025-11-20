@@ -476,7 +476,7 @@ Function Show-MainMenu {
     }
 
     Write-Host ""
-    Write-Host "Selecciona una opcion:" -ForegroundColor White
+    Write-Host "Selecciona una opción:" -ForegroundColor White
     Write-Host "1. Abrir PowerShell elevado" -ForegroundColor Gray
     Write-Host "2. Ejecutar comando" -ForegroundColor Gray
     Write-Host "3. Ejecutar comando como SYSTEM" -ForegroundColor Cyan
@@ -555,4 +555,3 @@ do {
     }
 
 } while ($true)
-
