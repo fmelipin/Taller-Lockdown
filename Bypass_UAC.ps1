@@ -547,7 +547,7 @@ do {
             exit
         }
         default {
-            Write-Host "[-] Opcion no válida" -ForegroundColor Red
+            Write-Host "[-] Opcion no valida" -ForegroundColor Red
             Write-Host ""
             Write-Host "Presiona Enter para continuar..." -ForegroundColor Gray -NoNewline
             $null = Read-Host
@@ -555,3 +555,4 @@ do {
     }
 
 } while ($true)
+
