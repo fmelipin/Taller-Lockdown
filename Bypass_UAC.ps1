@@ -476,7 +476,7 @@ Function Show-MainMenu {
     }
 
     Write-Host ""
-    Write-Host "Selecciona una opción:" -ForegroundColor White
+    Write-Host "Selecciona una opcion:" -ForegroundColor White
     Write-Host "1. Abrir PowerShell elevado" -ForegroundColor Gray
     Write-Host "2. Ejecutar comando" -ForegroundColor Gray
     Write-Host "3. Ejecutar comando como SYSTEM" -ForegroundColor Cyan
@@ -489,7 +489,7 @@ Function Show-MainMenu {
 
 do {
     Show-MainMenu
-    $opcion = Read-Host "Opción"
+    $opcion = Read-Host "Opcion"
 
     switch ($opcion) {
         "1" { 
@@ -547,7 +547,7 @@ do {
             exit
         }
         default {
-            Write-Host "[-] Opción no válida" -ForegroundColor Red
+            Write-Host "[-] Opcion no válida" -ForegroundColor Red
             Write-Host ""
             Write-Host "Presiona Enter para continuar..." -ForegroundColor Gray -NoNewline
             $null = Read-Host
@@ -555,3 +555,4 @@ do {
     }
 
 } while ($true)
+
